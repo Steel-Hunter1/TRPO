@@ -30,7 +30,7 @@ private slots:
 
     void on_Calculate_Button_clicked();
 
-    void on_Input_Params_editingFinished();
+   // void on_Input_Params_editingFinished();
 
     void on_Reset_Button_clicked();
 

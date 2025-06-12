@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     // Начальные настройки интерфейса
 
+    // доступна только кнопка выбора файла с входными данными, остальные недоступны
     ui->Calculate_Button->setEnabled(false);
     ui->Predict_Label->setVisible(false);
     ui->Input_Params->setVisible(false);
@@ -19,7 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Reset_Button->setEnabled(false);
     ui->Predict_Button->setVisible(false);
     ui->Predict_Label2->setVisible(false);
-
+    ui->MSE_label->setVisible(false);
+    ui->MAE_label->setVisible(false);
 
     ui->Plot_Widget->replot();
 }
@@ -39,15 +41,15 @@ void MainWindow::on_Select_File_Button_clicked()
      set.correct =  set.readData(fileName); // чтение данных из файла с проверкой на успешность
 
     // Чтение данных из файла
+
     if (set.correct == false)
     {
-         QMessageBox::warning(this, "Ошибка",
-                              QString("Файл пуст или поврежден!"));
+         QMessageBox::warning(this, "Ошибка", QString("Файл пуст или поврежден!"));
         return;//
     }
 
     ui->File_Name_Out->setText(fileName);
-    // После загрузки активируем кнопку расчета и сброса, запрещаем загрузку данных и
+    // После загрузки активируем кнопку расчета и сброса, запрещаем загрузку данных
     ui->Calculate_Button->setEnabled(true);
     ui->Reset_Button->setEnabled(true);
     ui->Select_File_Button->setEnabled(false);
@@ -62,6 +64,15 @@ void MainWindow::on_Calculate_Button_clicked()
 
     int Number_of_Features =  set.X[0].size(); // количество признаков - это число столбцов
     model.Calculate(); // вполнение расчета коэффициентов
+    model.Calculate_Metrics(model.Y, model.Create_Predicted_Set(model.X)); // расчет метрик обучения
+
+    ui->MSE_label->setVisible(true);
+    ui->MAE_label->setVisible(true);
+
+    ui->MAE_label->setText(QString("Средняя абсолютная ошибка: %1").arg(model.MAE, 0, 'f', 4));
+    ui->MSE_label->setText(QString("Среднеквадратическое отклонение : %1").arg(model.RMSE, 0, 'f', 4));
+
+
 
     // Активируем предсказание
     ui->Predict_Button->setVisible(true); // открывем кнопку предсказаний
@@ -82,12 +93,11 @@ void MainWindow::on_Calculate_Button_clicked()
         Plot(ui->Plot_Widget, X);
 
     }
-
 }
 
 
 void MainWindow::on_Reset_Button_clicked()
-{// нажата кнопка сброса
+{// нажата кнопка
 
     model.X.clear(); // уничтожние старых данных
     model.Y.clear();
@@ -105,15 +115,15 @@ void MainWindow::on_Reset_Button_clicked()
     ui->Predict_Button->setVisible(false);
     ui->Predict_Label2->setVisible(false);
     ui->Select_File_Button->setEnabled(true);
+    ui->MSE_label->setVisible(false);
+    ui->MAE_label->setVisible(false);
+
 
     ui->Plot_Widget->clearGraphs();  // Удаляем все графики
     ui->Plot_Widget->clearItems();   // Удаляем тексты, линии и другие элементы
     ui->Plot_Widget->xAxis->setRange(0, 10);  // Возвращаем начальный масштаб X
     ui->Plot_Widget->yAxis->setRange(0, 10);  // Возвращаем начальный масштаб Y
     ui->Plot_Widget->replot();      // Обновляем
-
-
-
 }
 
 
@@ -187,9 +197,6 @@ void MainWindow::Plot(QCustomPlot *customPlot, QVector<double> x)
 
     customPlot->addGraph();
     customPlot->graph(1)->setPen(QPen(Qt::red)); // красный график
-
-
-
 
     // создаем оси
     customPlot->xAxis2->setVisible(true);

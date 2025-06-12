@@ -36,8 +36,30 @@ void Approx_Function(double*X, double*Y, double&k, double&b)
     b = (SummY-k*SummX)/Size;
 }
 
+void Least_Squares_Method::Calculate_Metrics(const QVector<double> & Y, const QVector<double> & Predicted)
+{ // расчет метрик обучения
+
+    double sum = 0.0;
+    int n = Y.size();
+
+    for (int i = 0; i < n; i++)
+    {
+        sum += qAbs(Y[i] - Predicted[i]);
+    }
+    this->MAE = sum/n; // рассчет средней абсолютой ошибки
+
+    sum = 0.0;
+
+    for (int i = 0; i < n; i++)
+    {
+        double error = Y[i] - Predicted[i];
+        sum += error * error;
+    }
+    this->RMSE = sqrt(sum/n); // рассчет средеквадратичного отклонения
+}
+
 void Least_Squares_Method::Calculate()
-{
+{ // выполнение расчета
     if (X.size() == 0)
     {
         return;
@@ -58,10 +80,6 @@ void Least_Squares_Method::Calculate()
             X_Extended[i][j+1] = X[i][j]; // Сдвиг на 1 из-за добавленного столбца
         }
     }
-
-
-
-
     QVector<QVector<double>> Transposed_X = Transpose(X_Extended); // транспонируем X
     QVector<QVector<double>> X_multip_Xt = Multiply (Transposed_X, X_Extended); // умножение транспонированной X на обычный X
     QVector<QVector<double>> Inversed_Res = Inverse_Matrix( X_multip_Xt); // инвертирование матрицы с предыд. шага
@@ -281,7 +299,7 @@ QVector<QVector<double>> Least_Squares_Method::Inverse_Matrix(QVector<QVector<do
 double  Least_Squares_Method::predict(QVector<double>& Features)
 {
     // Расчет предсказания: y = b0 + b1*x1 + b2*x2 + ... + bn*xn
-    double prediction = Sigma[0]; // intercept (b0)
+    double prediction = Sigma[0]; // учет b0
 
     for (int i = 0; i < Features.size(); ++i)
     {
@@ -291,9 +309,22 @@ double  Least_Squares_Method::predict(QVector<double>& Features)
     return prediction;
 }
 
+QVector<double> Least_Squares_Method::Create_Predicted_Set(const QVector<QVector<double>> & X)
+{ // создает мааси предсказанных значений относительно существующих значений признаков для расчета метрик
+    QVector<double> Predicted_Values;
+    QVector<double> Features_to_Predict;
 
-
-
+    for (int i = 0; i < X.size(); i++) //  количество столбцы
+    {
+        for (int j = 0; j < X[0].size(); j++) // количество строк
+        {
+            Features_to_Predict.append(X[i][j]);
+        }
+    Predicted_Values.append(predict(Features_to_Predict));
+    Features_to_Predict.clear();
+    }
+    return Predicted_Values;
+}
 
 
 

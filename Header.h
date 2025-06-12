@@ -9,12 +9,11 @@
 #include <QFile>
 #include <cmath>
 #include <QVector>
-#include <fstream>
 #include <QString>
 
 void Inv(QVector<QVector<double>> matrix);
 
-
+///// ///// ///// ///// //// ///
 class Least_Squares_Method
 {
 
@@ -32,7 +31,14 @@ class Least_Squares_Method
     QVector<double> Y; // одномерный массив значений
     QVector<double> Sigma; // массив оценок
 
+    //=======метрики обучения========
+    double RMSE; // среднеквадратичное отклонение (извлекается корень)
+    double MAE; // средняя абсолютная ошибка
+    //===============================
+    void Calculate_Metrics(const QVector<double> & Y, const QVector<double> &Predicted); // расчет метрик
+    QVector<double> Create_Predicted_Set (const QVector<QVector<double>> & X);
 
+    //===============================
     void Calculate();
     double predict(QVector<double>& features);
 };

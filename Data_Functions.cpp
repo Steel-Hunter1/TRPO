@@ -11,14 +11,16 @@ bool DataSet::readData(QString& File_Path, const QString& separator)
     { // проверка на открытие
         return false;
     }
+    int iterations = 0; // колличество итераций считывания данных
    // if (file.pos() == 0)
      //   return false;
-    QTextStream input(&file);
+    QTextStream input(&file);//
 
     while (!input.atEnd())
     { // построчное считывание файла
         QString line = input.readLine().trimmed();
         if (line.isEmpty()) continue;
+        else iterations++;
 
         QStringList parts = line.split(separator); // последний столбец отделен сепаратором, его отделяем в отдельный массив
         if (parts.size() != 2)
@@ -44,6 +46,7 @@ bool DataSet::readData(QString& File_Path, const QString& separator)
             if (ok) this->Y.append(Last_Val);
         }
     }
+    if (iterations == 0) return false;
     file.close();
     return true;
 }
