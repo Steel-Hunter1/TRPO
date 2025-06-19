@@ -103,7 +103,7 @@ void MainWindow::on_Reset_Button_clicked()
     model.Y.clear();
     set.X.clear();
     set.Y.clear();
-    set.Sigma.clear();
+   // set.Sigma.clear();
     // возвращение окна к режиму по-умолчанию
     ui->Calculate_Button->setEnabled(false);
 

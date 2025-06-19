@@ -1,41 +1,6 @@
 
 #include "Header.h"
 
-void Approx_Function(double*X, double*Y, double&k, double&b)
-// на вход подается два массива, со значениями X и Y
-{ // линейная функция y = kx+b
-    int Size = sizeof(X);
-    //double k = 0;
-   // double b = 0;
-    double SummXY=0;// сумма Xi * Yi
-    for (int i = 0; i < Size; i++)
-    {
-        SummXY+= X[i]*Y[i];
-    }
-    
-    double SummX=0;// сумма Xi
-    for (int i = 0; i < Size; i++)
-    {
-        SummX += X[i];
-    }
-
-    double SummY=0;// Сумма Yi
-    for (int i = 0; i < Size; i++)
-    {
-        SummY+=Y[i];
-    }
-    double Summ_SquareX = 0;// Сумма (X^2)i
-    for (int i = 0; i < Size; i++)
-    {
-        Summ_SquareX+=X[i]*X[i];
-    }
-
-    // k = (n*(сумма Xi * Yi) - (сумма Xi)*(Сумма Yi))/(n*(Сумма (X^2)i) - (сумма Xi)^2)
-    k = (Size*SummXY - SummX*SummY)/(Size*Summ_SquareX - SummX*SummX);
-    // b = ((Сумма Yi)-k*(сумма Xi))/n
-    b = (SummY-k*SummX)/Size;
-}
-
 void Least_Squares_Method::Calculate_Metrics(const QVector<double> & Y, const QVector<double> & Predicted)
 { // расчет метрик обучения
 
@@ -169,52 +134,7 @@ QVector<QVector<double>> Least_Squares_Method::Multiply(QVector<QVector<double>>
 }
 //==============================================================
 
-double Least_Squares_Method::Determinant (QVector<QVector<double>> matrix)
-{// нахождение определителя матрицы
-    int N = matrix.size();
-    int M =  matrix[0].size();
-    double Det = 1; // определитель
-    if ((N==1)and(M==1))
-    {
-        return matrix[0][0];
-    }
-    if ((N==2)and(M==2))
-    {
-        Det =  matrix[0][0] *  matrix[1][1] - ( matrix[1][0] *  matrix[0][1]);
-    }
 
-    for (int i = 0; i < N; i++) // цикл по столбцам
-    {
-        int Max_Row = i; // индекс строки, где в i-ом столбце элемент максимален по модулю
-        for (int j = i+1; j < N; j++) // цикл, который перебирает строки начиная от i+1
-        {
-            if (abs(matrix[j][i]) > abs(matrix[j][Max_Row]))// если находится элемент, который
-            {
-                Max_Row = j;
-            }
-        }
-        if (Max_Row != i)// если строка с максимальным элементом не совпадают, надо поменять строки местами
-        {// чтобы наибольший элемент занял место на главной диагонали
-            matrix[i].swap(matrix[Max_Row]);
-            Det*= -1; // при замене строк меняем на противоположенный знак
-        }
-        for (int j = i+1; j < N; j++) // ниже максимального элемента нужно обнулить
-        {
-            double Coeff = matrix[j][i] / matrix [i][i];
-            for (int k = i; k < N; k++)// обнуление
-            {
-                matrix[j][k] -= Coeff*matrix[i][k];
-
-            }
-        }
-    }
-    for (int i =0; i < N; i ++)
-    {
-        Det*=matrix[i][i];
-    }
-    return Det;
-
-}
 
 QVector<QVector<double>> Least_Squares_Method::Inverse_Matrix(QVector<QVector<double>> matrix)
 {// нахождение обратной матрицы
@@ -314,7 +234,7 @@ QVector<double> Least_Squares_Method::Create_Predicted_Set(const QVector<QVector
     QVector<double> Predicted_Values;
     QVector<double> Features_to_Predict;
 
-    for (int i = 0; i < X.size(); i++) //  количество столбцы
+    for (int i = 0; i < X.size(); i++) //  количество столбцов
     {
         for (int j = 0; j < X[0].size(); j++) // количество строк
         {
